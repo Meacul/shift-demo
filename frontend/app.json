@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "worksheet",
-    "slug": "worksheet",
+    "name": "scheduling demo",
+    "slug": "scheduling-demo-frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -39,6 +39,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5266b733-1c26-4346-a508-e4cb55686047"
+      }
+    },
+    "owner": "meacul"
   }
 }
