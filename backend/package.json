@@ -1,0 +1,31 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Graphql backend for scheduling demo",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@apollo/server": "^5.4.0",
+    "dotenv": "^17.3.1",
+    "graphql": "^16.13.1",
+    "graphql-tag": "^2.12.6",
+    "postgres": "^3.4.8",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.3.0",
+    "@types/node": "^25.4.0",
+    "jest": "^30.3.0",
+    "ts-jest": "^29.4.6",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}
