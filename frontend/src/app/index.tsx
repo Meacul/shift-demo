@@ -1,67 +1,98 @@
-import { Platform, StyleSheet, View, type ViewProps } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Box, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
+import React from 'react';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { workers } from '@/constants/workers';
-type Location = {
-  gpsCoordinates: {
-    latitude: number,
-    longitude: number
-  }
-  name: string
-};
+import { useTheme } from '@/hooks/use-theme';
 
-type Shift = {
-  from: string, // yyyy-mm-ddThh:mm
-  to: string, // yyyy-mm-ddThh:mm
-  location: Location,
-}
+import { shifts, convertShiftTimeToHumanReadable } from '@/constants/shifts';
 
-export default function HomeScreen() {
+export default function ShiftList() {
+    const safeAreaInsets = useSafeAreaInsets();
+    const insets = {
+        ...safeAreaInsets,
+        bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
+    };
+    const theme = useTheme();
+
+    const contentPlatformStyle = Platform.select({
+        android: {
+            paddingTop: insets.top,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+            paddingBottom: insets.bottom,
+        },
+        web: {
+            paddingTop: Spacing.six,
+            paddingBottom: Spacing.four,
+        },
+    });
+
     return (
-        <ThemedView style={styles.container}>
-
-        </ThemedView>
+        <ScrollView
+            style={[styles.scrollView, { backgroundColor: theme.background }]}
+            contentInset={insets}
+            contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
+            <ThemedView style={styles.container}>
+                <View style={styles.nativeCard}>
+                    <ThemedText type="title">Shifts</ThemedText>
+                    <View style={styles.nativeList}>
+                        {shifts.map((shift, index) => (
+                            <View
+                                key={index}
+                                style={[
+                                    styles.nativeListItem,
+                                    index < shifts.length - 1 && styles.nativeListItemBorder,
+                                ]}>
+                                <ThemedText style={styles.workerName}>{shift.location.name}</ThemedText>
+                                <ThemedText>{convertShiftTimeToHumanReadable(shift.from)} to {convertShiftTimeToHumanReadable(shift.to)}</ThemedText>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            </ThemedView>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    scrollView: {
         flex: 1,
-        justifyContent: 'center',
+    },
+    contentContainer: {
         flexDirection: 'row',
-    },
-    safeArea: {
-        flex: 1,
-        paddingHorizontal: Spacing.four,
-        alignItems: 'center',
-        gap: Spacing.three,
-        paddingBottom: BottomTabInset + Spacing.three,
-        maxWidth: MaxContentWidth,
-    },
-    heroSection: {
-        alignItems: 'center',
         justifyContent: 'center',
-        flex: 1,
-        paddingHorizontal: Spacing.four,
-        gap: Spacing.four,
     },
-    title: {
-        textAlign: 'center',
+    container: {
+        maxWidth: MaxContentWidth,
+        flexGrow: 1,
     },
-    code: {
-        textTransform: 'uppercase',
-    },
-    stepContainer: {
-        gap: Spacing.three,
-        alignSelf: 'stretch',
-        paddingHorizontal: Spacing.three,
-        paddingVertical: Spacing.four,
+    nativeCard: {
+        marginHorizontal: Spacing.four,
+        marginTop: Spacing.four,
         borderRadius: Spacing.four,
+        padding: Spacing.four,
+        gap: Spacing.two,
+    },
+    subtitle: {
+        opacity: 0.7,
+    },
+    nativeList: {
+        marginTop: Spacing.two,
+        borderRadius: Spacing.three,
+        overflow: 'hidden',
+    },
+    nativeListItem: {
+        paddingVertical: Spacing.three,
+    },
+    nativeListItemBorder: {
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: '#CBD5E1',
+    },
+    workerName: {
+        fontWeight: '600',
     },
 });

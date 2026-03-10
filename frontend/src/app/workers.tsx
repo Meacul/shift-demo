@@ -8,26 +8,9 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-type User = {
-  name: string
-  email: string
-  id: string
-}
+import { workers } from '@/constants/workers';
 
-const users: User[] = [
-    { id: 'user-001', name: 'Ava Thompson', email: 'ava.thompson@example.com' },
-    { id: 'user-002', name: 'Liam Carter', email: 'liam.carter@example.com' },
-    { id: 'user-003', name: 'Sophia Nguyen', email: 'sophia.nguyen@example.com' },
-    { id: 'user-004', name: 'Noah Patel', email: 'noah.patel@example.com' },
-    { id: 'user-005', name: 'Isabella Martinez', email: 'isabella.martinez@example.com' },
-    { id: 'user-006', name: 'Ethan Brooks', email: 'ethan.brooks@example.com' },
-    { id: 'user-007', name: 'Mia Robinson', email: 'mia.robinson@example.com' },
-    { id: 'user-008', name: 'Lucas Kim', email: 'lucas.kim@example.com' },
-    { id: 'user-009', name: 'Charlotte Adams', email: 'charlotte.adams@example.com' },
-    { id: 'user-010', name: 'James Walker', email: 'james.walker@example.com' },
-];
-
-export default function TabTwoScreen() {
+export default function WorkerList() {
     const safeAreaInsets = useSafeAreaInsets();
     const insets = {
         ...safeAreaInsets,
@@ -57,18 +40,18 @@ export default function TabTwoScreen() {
                 <View style={styles.nativeCard}>
                     <ThemedText type="title">Workers</ThemedText>
                     <ThemedText style={styles.subtitle}>
-            10 placeholder users loaded into the schedule.
+            10 placeholder workers loaded into the schedule.
                     </ThemedText>
                     <View style={styles.nativeList}>
-                        {users.map((user, index) => (
+                        {workers.map((worker, index) => (
                             <View
-                                key={user.id}
+                                key={worker.id}
                                 style={[
                                     styles.nativeListItem,
-                                    index < users.length - 1 && styles.nativeListItemBorder,
+                                    index < workers.length - 1 && styles.nativeListItemBorder,
                                 ]}>
-                                <ThemedText style={styles.userName}>{user.name}</ThemedText>
-                                <ThemedText>{user.email}</ThemedText>
+                                <ThemedText style={styles.workerName}>{worker.name}</ThemedText>
+                                <ThemedText>{worker.email}</ThemedText>
                             </View>
                         ))}
                     </View>
@@ -112,7 +95,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: '#CBD5E1',
     },
-    userName: {
+    workerName: {
         fontWeight: '600',
     },
 });
