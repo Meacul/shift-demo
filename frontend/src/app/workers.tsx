@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useAppContext } from '@/context/app-context';
 import { useTheme } from '@/hooks/use-theme';
+import { Shift } from '@/constants/shifts';
 
 export default function WorkerList() {
     const safeAreaInsets = useSafeAreaInsets();
@@ -16,7 +17,7 @@ export default function WorkerList() {
         bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
     };
     const theme = useTheme();
-    const { workers, currentUserId } = useAppContext();
+    const { workers, currentUserId, shifts, getShiftOwner } = useAppContext();
 
     const contentPlatformStyle = Platform.select({
         android: {
@@ -30,6 +31,18 @@ export default function WorkerList() {
             paddingBottom: Spacing.four,
         },
     });
+    
+    const shiftsByWorker = shifts.reduce((acc: Record<string, Shift[]>, shift: Shift) => {
+        const owner = getShiftOwner(shift.id);
+        if (owner) {
+            if (!acc[owner.id]) {
+                acc[owner.id] = [];
+            }
+            acc[owner.id].push(shift);
+        }
+
+        return acc;
+    }, {} as Record<string, Shift[]>);
 
     return (
         <ScrollView
@@ -54,6 +67,17 @@ export default function WorkerList() {
                                 <ThemedText>
                                     {worker.email}
                                 </ThemedText>
+                                {
+                                    shiftsByWorker[worker.id] && shiftsByWorker[worker.id].length > 0 ?
+                                    shiftsByWorker[worker.id].map((shift) => (
+                                        <ThemedText key={shift.id} type="small">
+                                            {`${shift.location.name}: ${shift.from} - ${shift.to}`}
+                                        </ThemedText>
+                                    )) :
+                                    <ThemedText type="small" style={{ fontStyle: 'italic' }}>
+                                        No claimed shifts
+                                    </ThemedText>
+                                }
                             </View>
                         ))}
                     </View>
@@ -101,4 +125,7 @@ const styles = StyleSheet.create({
     workerName: {
         fontWeight: '600',
     },
+    shift: {
+
+    }
 });

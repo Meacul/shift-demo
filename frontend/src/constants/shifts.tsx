@@ -21,8 +21,3 @@ export const shifts: Shift[] = Object.entries(locations).flatMap(([locationId, l
         location,
     }))
 );
-
-export const convertShiftTimeToHumanReadable = (time: string) => {
-    const date = new Date(time);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-};

@@ -8,8 +8,6 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useAppContext } from '@/context/app-context';
 import { useTheme } from '@/hooks/use-theme';
 
-import { convertShiftTimeToHumanReadable } from '@/constants/shifts';
-
 export default function ShiftList() {
     const safeAreaInsets = useSafeAreaInsets();
     const insets = {
@@ -64,7 +62,7 @@ export default function ShiftList() {
                                     ]}>
                                     <View>
                                         <ThemedText style={styles.workerName}>{shift.location.name}</ThemedText>
-                                        <ThemedText>{convertShiftTimeToHumanReadable(shift.from)} to {convertShiftTimeToHumanReadable(shift.to)}</ThemedText>
+                                        <ThemedText>{shift.from} to {shift.to}</ThemedText>
                                         <ThemedText style={styles.claimedByText}>
                                             {owner ? `Claimed by ${owner.name}` : 'Unclaimed'}
                                         </ThemedText>
