@@ -4,12 +4,11 @@ const config: Config = {
   clearMocks: true,
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  extensionsToTreatAsEsm: ['.ts'],
   globalTeardown: './jest.global-teardown.ts',
-  preset: 'ts-jest/presets/default-esm',
+  preset: 'ts-jest',
   testEnvironment: 'node',
   transform: {
-    '^.+\\.ts$': ['ts-jest', { tsconfig: './tsconfig.json', useESM: true }],
+    '^.+\\.ts$': ['ts-jest', { tsconfig: './tsconfig.json' }],
   },
 };
 

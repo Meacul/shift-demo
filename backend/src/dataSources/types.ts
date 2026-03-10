@@ -24,7 +24,10 @@ export type Shift = {
 }
 
 export type ShiftRequest = {
+    internal_id: string;
     identifier: string;
+    created_at: string;
+    user_id: string;
+    shift_id: string;
     accepted: boolean;
-    createdAt: string;
 }
