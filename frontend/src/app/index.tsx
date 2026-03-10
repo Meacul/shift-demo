@@ -1,14 +1,14 @@
-import { Box, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
 import React from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Button, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useAppContext } from '@/context/app-context';
 import { useTheme } from '@/hooks/use-theme';
 
-import { shifts, convertShiftTimeToHumanReadable } from '@/constants/shifts';
+import { convertShiftTimeToHumanReadable } from '@/constants/shifts';
 
 export default function ShiftList() {
     const safeAreaInsets = useSafeAreaInsets();
@@ -17,6 +17,14 @@ export default function ShiftList() {
         bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
     };
     const theme = useTheme();
+    const {
+        shifts,
+        currentUser,
+        currentUserId,
+        claimShift,
+        unclaimShift,
+        getShiftOwner,
+    } = useAppContext();
 
     const contentPlatformStyle = Platform.select({
         android: {
@@ -39,18 +47,47 @@ export default function ShiftList() {
             <ThemedView style={styles.container}>
                 <View style={styles.nativeCard}>
                     <ThemedText type="title">Shifts</ThemedText>
+                    <ThemedText style={styles.subtitle}>
+                        {currentUser ? `Current user: ${currentUser.name}` : 'Select a worker before claiming a shift.'}
+                    </ThemedText>
                     <View style={styles.nativeList}>
-                        {shifts.map((shift, index) => (
-                            <View
-                                key={index}
-                                style={[
-                                    styles.nativeListItem,
-                                    index < shifts.length - 1 && styles.nativeListItemBorder,
-                                ]}>
-                                <ThemedText style={styles.workerName}>{shift.location.name}</ThemedText>
-                                <ThemedText>{convertShiftTimeToHumanReadable(shift.from)} to {convertShiftTimeToHumanReadable(shift.to)}</ThemedText>
-                            </View>
-                        ))}
+                        {shifts.map((shift, index) => {
+                            const owner = getShiftOwner(shift.id);
+                            const isClaimedByCurrentUser = owner?.id === currentUserId;
+
+                            return (
+                                <View
+                                    key={shift.id}
+                                    style={[
+                                        styles.nativeListItem,
+                                        index < shifts.length - 1 && styles.nativeListItemBorder,
+                                    ]}>
+                                    <View>
+                                        <ThemedText style={styles.workerName}>{shift.location.name}</ThemedText>
+                                        <ThemedText>{convertShiftTimeToHumanReadable(shift.from)} to {convertShiftTimeToHumanReadable(shift.to)}</ThemedText>
+                                        <ThemedText style={styles.claimedByText}>
+                                            {owner ? `Claimed by ${owner.name}` : 'Unclaimed'}
+                                        </ThemedText>
+                                    </View>
+                                    <Button
+                                        title={isClaimedByCurrentUser ? 'Unclaim shift' : 'Claim shift'}
+                                        onPress={() => {
+                                            if (!currentUser) {
+                                                Alert.alert('No current user', 'Select a worker before claiming a shift.');
+                                                return;
+                                            }
+
+                                            if (isClaimedByCurrentUser) {
+                                                unclaimShift(shift.id);
+                                                return;
+                                            }
+
+                                            claimShift(shift.id);
+                                        }}
+                                    />
+                                </View>
+                            );
+                        })}
                     </View>
                 </View>
             </ThemedView>
@@ -87,6 +124,9 @@ const styles = StyleSheet.create({
     },
     nativeListItem: {
         paddingVertical: Spacing.three,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     nativeListItemBorder: {
         borderBottomWidth: StyleSheet.hairlineWidth,
@@ -94,5 +134,8 @@ const styles = StyleSheet.create({
     },
     workerName: {
         fontWeight: '600',
+    },
+    claimedByText: {
+        opacity: 0.7,
     },
 });

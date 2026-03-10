@@ -1,4 +1,4 @@
-import { Box, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
+import { List, ListItemText, Paper } from '@mui/material';
 import React from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,9 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useAppContext } from '@/context/app-context';
 import { useTheme } from '@/hooks/use-theme';
-
-import { workers } from '@/constants/workers';
 
 export default function WorkerList() {
     const safeAreaInsets = useSafeAreaInsets();
@@ -17,6 +16,7 @@ export default function WorkerList() {
         bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
     };
     const theme = useTheme();
+    const { workers, currentUserId } = useAppContext();
 
     const contentPlatformStyle = Platform.select({
         android: {
@@ -40,7 +40,7 @@ export default function WorkerList() {
                 <View style={styles.nativeCard}>
                     <ThemedText type="title">Workers</ThemedText>
                     <ThemedText style={styles.subtitle}>
-            10 placeholder workers loaded into the schedule.
+                        Worker directory. This screen can later show claimed shifts per worker.
                     </ThemedText>
                     <View style={styles.nativeList}>
                         {workers.map((worker, index) => (
@@ -51,7 +51,9 @@ export default function WorkerList() {
                                     index < workers.length - 1 && styles.nativeListItemBorder,
                                 ]}>
                                 <ThemedText style={styles.workerName}>{worker.name}</ThemedText>
-                                <ThemedText>{worker.email}</ThemedText>
+                                <ThemedText>
+                                    {worker.email}
+                                </ThemedText>
                             </View>
                         ))}
                     </View>
@@ -90,6 +92,7 @@ const styles = StyleSheet.create({
     },
     nativeListItem: {
         paddingVertical: Spacing.three,
+        paddingHorizontal: Spacing.three,
     },
     nativeListItemBorder: {
         borderBottomWidth: StyleSheet.hairlineWidth,

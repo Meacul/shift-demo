@@ -6,23 +6,25 @@ import {
     TabTriggerSlotProps,
     TabListProps,
 } from 'expo-router/ui';
-import { SymbolView } from 'expo-symbols';
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
 
-import { ExternalLink } from './external-link';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
+import WorkerSelector from './worker-selector';
 
 import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useAppContext } from '@/context/app-context';
 
 export default function AppTabs() {
+    const [isWorkerSelectorOpen, setIsWorkerSelectorOpen] = useState(false);
+
     return (
         <Tabs>
             <TabSlot style={{ height: '100%' }} />
             <TabList asChild>
-                <CustomTabList>
-                    <TabTrigger name="home" href="/" asChild>
+                <CustomTabList onOpenWorkerSelector={() => setIsWorkerSelectorOpen(true)}>
+                    <TabTrigger name="shifts" href="/" asChild>
                         <TabButton>Shift list</TabButton>
                     </TabTrigger>
                     <TabTrigger name="workers" href="/workers" asChild>
@@ -30,6 +32,10 @@ export default function AppTabs() {
                     </TabTrigger>
                 </CustomTabList>
             </TabList>
+            <WorkerSelector
+                visible={isWorkerSelectorOpen}
+                onClose={() => setIsWorkerSelectorOpen(false)}
+            />
         </Tabs>
     );
 }
@@ -48,9 +54,12 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
     );
 }
 
-export function CustomTabList(props: TabListProps) {
+export function CustomTabList(
+    props: TabListProps & { onOpenWorkerSelector: () => void }
+) {
     const scheme = useColorScheme();
     const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+    const { currentUser } = useAppContext();
 
     return (
         <View {...props} style={styles.tabListContainer}>
@@ -60,6 +69,13 @@ export function CustomTabList(props: TabListProps) {
                 </ThemedText>
 
                 {props.children}
+                <Pressable onPress={props.onOpenWorkerSelector} style={({ pressed }) => pressed && styles.pressed}>
+                    <ThemedView type="backgroundSelected" style={styles.selectorButton}>
+                        <ThemedText type="smallBold">
+                            {currentUser ? currentUser.name : 'Select worker'}
+                        </ThemedText>
+                    </ThemedView>
+                </Pressable>
             </ThemedView>
         </View>
     );
@@ -95,11 +111,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.three,
         borderRadius: Spacing.three,
     },
-    externalPressable: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: Spacing.one,
-        marginLeft: Spacing.three,
+    selectorButton: {
+        paddingVertical: Spacing.one,
+        paddingHorizontal: Spacing.three,
+        borderRadius: Spacing.three,
     },
 });
