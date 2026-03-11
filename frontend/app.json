@@ -44,7 +44,8 @@
       "router": {},
       "eas": {
         "projectId": "5266b733-1c26-4346-a508-e4cb55686047"
-      }
+      },
+      "apiUrl": "http://localhost:10000/graphql"
     },
     "owner": "meacul"
   }

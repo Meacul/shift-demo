@@ -1,4 +1,4 @@
-# Scheduling demo
+# Shift demo
 This is an exercise for using expo for frontend and supabase as a data source.
 
 ## Database

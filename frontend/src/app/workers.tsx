@@ -1,4 +1,3 @@
-import { List, ListItemText, Paper } from '@mui/material';
 import React from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,7 +16,7 @@ export default function WorkerList() {
         bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
     };
     const theme = useTheme();
-    const { workers, currentUserId, shifts, getShiftOwner } = useAppContext();
+    const { workers, workersLoading, workersError, shifts, getShiftOwner } = useAppContext();
 
     const contentPlatformStyle = Platform.select({
         android: {
@@ -55,6 +54,14 @@ export default function WorkerList() {
                     <ThemedText style={styles.subtitle}>
                         Worker directory. This screen can later show claimed shifts per worker.
                     </ThemedText>
+                    {workersLoading ? (
+                        <ThemedText type="small">Loading workers...</ThemedText>
+                    ) : null}
+                    {workersError ? (
+                        <ThemedText type="small" style={styles.errorText}>
+                            Using fallback worker data: {workersError}
+                        </ThemedText>
+                    ) : null}
                     <View style={styles.nativeList}>
                         {workers.map((worker, index) => (
                             <View
@@ -69,14 +76,14 @@ export default function WorkerList() {
                                 </ThemedText>
                                 {
                                     shiftsByWorker[worker.id] && shiftsByWorker[worker.id].length > 0 ?
-                                    shiftsByWorker[worker.id].map((shift) => (
-                                        <ThemedText key={shift.id} type="small">
-                                            {`${shift.location.name}: ${shift.from} - ${shift.to}`}
-                                        </ThemedText>
-                                    )) :
-                                    <ThemedText type="small" style={{ fontStyle: 'italic' }}>
+                                        shiftsByWorker[worker.id].map((shift) => (
+                                            <ThemedText key={shift.id} type="small">
+                                                {`${shift.location.name}: ${shift.from} - ${shift.to}`}
+                                            </ThemedText>
+                                        )) :
+                                        <ThemedText type="small" style={{ fontStyle: 'italic' }}>
                                         No claimed shifts
-                                    </ThemedText>
+                                        </ThemedText>
                                 }
                             </View>
                         ))}
@@ -108,6 +115,9 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         opacity: 0.7,
+    },
+    errorText: {
+        color: '#B91C1C',
     },
     nativeList: {
         marginTop: Spacing.two,
