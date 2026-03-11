@@ -118,8 +118,6 @@ describe('Mutation GraphQL integration', () => {
             throw new Error('Expected a single GraphQL result');
         }
 
-        console.log('Create shift request response:', createResponse.body.singleResult.data?.requestShift);
-
         const requestShift = createResponse.body.singleResult.data?.requestShift as { id: string } | undefined;
         expect(requestShift).toBeDefined();
         if (!requestShift) {

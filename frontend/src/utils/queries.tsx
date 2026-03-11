@@ -27,6 +27,10 @@ export const GET_SHIFTS = gql`
             location {
                 id
                 name
+                gpsCoordinates {
+                    latitude
+                    longitude
+                }
             }
             shiftRequests {
                 id

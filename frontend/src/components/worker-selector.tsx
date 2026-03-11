@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -12,7 +12,11 @@ type WorkerSelectorProps = {
 };
 
 export default function WorkerSelector({ visible, onClose }: WorkerSelectorProps) {
-    const { workers, currentUserId, setCurrentUserId } = useAppContext();
+    const { workers, currentUserId, setCurrentUserId, loadWorkers } = useAppContext();
+
+    useEffect(() => {
+        loadWorkers();
+    }, []);
 
     return (
         <Modal

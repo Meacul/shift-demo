@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -7,7 +7,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useAppContext } from '@/context/app-context';
 import { useTheme } from '@/hooks/use-theme';
-import { Shift } from '@/constants/shifts';
+import { ShiftDisplayData } from '@/constants/shifts';
 
 export default function WorkerList() {
     const safeAreaInsets = useSafeAreaInsets();
@@ -16,7 +16,7 @@ export default function WorkerList() {
         bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
     };
     const theme = useTheme();
-    const { workers, workersLoading, workersError, shifts, getShiftOwner } = useAppContext();
+    const { workers, workersLoading, workersError, shifts, getShiftOwner, loadWorkers, loadShifts } = useAppContext();
 
     const contentPlatformStyle = Platform.select({
         android: {
@@ -30,18 +30,34 @@ export default function WorkerList() {
             paddingBottom: Spacing.four,
         },
     });
-    
-    const shiftsByWorker = shifts.reduce((acc: Record<string, Shift[]>, shift: Shift) => {
-        const owner = getShiftOwner(shift.id);
-        if (owner) {
-            if (!acc[owner.id]) {
-                acc[owner.id] = [];
-            }
-            acc[owner.id].push(shift);
-        }
 
-        return acc;
-    }, {} as Record<string, Shift[]>);
+    useEffect(() => {
+        loadWorkers();
+    }, []);
+
+    useEffect(() => {
+        loadShifts();
+    }, []);
+
+    const [shiftsByWorker, setShiftsByWorker] = useState<Record<string, ShiftDisplayData[]>>({});
+    useEffect(() => {
+        // Parse shifts by worker for easier display
+        const mapping: Record<string, ShiftDisplayData[]> = {};
+        shifts.forEach(shift => {
+            shift.shiftRequests.forEach(request => {
+                const workerId = request.worker.id;
+                if (!mapping[workerId]) {
+                    mapping[workerId] = [];
+                }
+                mapping[workerId].push({
+                    id: shift.id,
+                    timeString: `${shift.startDate} ${shift.startTime} (${shift.durationInMinutes} mins)`,
+                    locationName: shift.location.name,
+                });
+            });
+        });
+        setShiftsByWorker(mapping);
+    }, [workers, shifts]);
 
     return (
         <ScrollView
@@ -78,7 +94,7 @@ export default function WorkerList() {
                                     shiftsByWorker[worker.id] && shiftsByWorker[worker.id].length > 0 ?
                                         shiftsByWorker[worker.id].map((shift) => (
                                             <ThemedText key={shift.id} type="small">
-                                                {`${shift.location.name}: ${shift.from} - ${shift.to}`}
+                                                {`${shift.locationName}: ${shift.timeString}`}
                                             </ThemedText>
                                         )) :
                                         <ThemedText type="small" style={{ fontStyle: 'italic' }}>

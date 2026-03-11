@@ -8,6 +8,7 @@ const sql = postgres({
     username: config.databaseUser,
     password: config.databasePassword,
     database: config.databaseName,
+    prepare: false,
 });
 
 export const shutdownPostgres = async (): Promise<void> => {
@@ -36,12 +37,12 @@ export const getLocations = async (): Promise<Location[]> => {
 }
 
 export const getLocationById = async (id: string): Promise<Location | null> => {
-    const result = await sql<Location[]>`SELECT identifier, name, gps_coordinates FROM public.location WHERE identifier = ${id}`;
+    const result = await sql<Location[]>`SELECT identifier, name, gps_coordinates FROM public.location WHERE id = ${id}`;
     return result[0] || null;
 }
 
 export const getShifts = async (): Promise<Shift[]> => {
-    const result = await sql<Shift[]>`SELECT id, identifier, location_id, start_date, start_time, duration_in_minutes FROM public.shift`;
+    const result = await sql<Shift[]>`SELECT id as internal_id, identifier, location_id, start_date, start_time, duration_in_minutes FROM public.shift`;
     return result as Shift[];
 }
 
@@ -50,18 +51,16 @@ export const getShiftByInternalId = async (internalId: string): Promise<Shift | 
     return result[0] || null;
 }
 
-export const getShiftRequests = async ({ shiftId, workerId }: { shiftId?: string; workerId?: string }): Promise<ShiftRequest[]> => {
-    let query = sql`SELECT id as internal_id, identifier, created_at, user_id, shift_id, accepted FROM public.shift_request`;
-    if (!shiftId && !workerId) {
-        throw new Error("At least one of shift_id or user_id must be provided");
-    }
-    if (shiftId && workerId) {
-        return sql<ShiftRequest[]>`${query} WHERE shift_id = ${shiftId} AND user_id = ${workerId}`;
-    } else if (shiftId) {
-       return sql<ShiftRequest[]>`${query} WHERE shift_id = ${shiftId}`;
-    } else {
-        return sql<ShiftRequest[]>`${query} WHERE user_id = ${workerId}`;
-    }
+export const getShiftRequestsForShift = async (shiftId: string): Promise<ShiftRequest[]> => {
+    const shift_id = shiftId;
+    const result = await sql<ShiftRequest[]>`SELECT id as internal_id, identifier, created_at, user_id, shift_id, accepted FROM public.shift_request WHERE shift_id = ${shift_id}`;
+    return result as ShiftRequest[];
+}
+
+export const getShiftRequestsForWorker = async (workerId: string): Promise<ShiftRequest[]> => {
+    const user_id = workerId;
+    const result = await sql<ShiftRequest[]>`SELECT id as internal_id, identifier, created_at, user_id, shift_id, accepted FROM public.shift_request WHERE user_id = ${user_id}`;
+    return result as ShiftRequest[];
 }
 
 export const removeAllShiftRequests = async (): Promise<void> => {

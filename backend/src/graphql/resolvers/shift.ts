@@ -1,9 +1,9 @@
-import { getShiftRequests, getLocationById } from "../../dataSources/postgres";
+import { getShiftRequestsForShift, getLocationById } from "../../dataSources/postgres";
 import { Location, Shift, ShiftRequest } from "../../dataSources/types";
 
 const resolvers = {
     shiftRequests: async (parent: Shift, _: any, { dataSources }: any): Promise<ShiftRequest[]> => {
-        return getShiftRequests({ shiftId: parent.internal_id });
+        return getShiftRequestsForShift(parent.internal_id);
     },
     location: async (parent: Shift, _: any, { dataSources }: any): Promise<Location | null> => {
         return getLocationById(parent.location_id);

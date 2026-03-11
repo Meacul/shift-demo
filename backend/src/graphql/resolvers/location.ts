@@ -1,4 +1,3 @@
-import { getShiftRequests, getLocationById } from "../../dataSources/postgres";
 import { Location } from "../../dataSources/types";
 
 const resolvers = {

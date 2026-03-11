@@ -57,9 +57,9 @@ export type MutationRespondToShiftRequestArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  locations: Location[];
-  shifts: Shift[];
-  workers: Worker[];
+  locations: Array<Location>;
+  shifts: Array<Shift>;
+  workers: Array<Worker>;
 };
 
 export type Shift = {
@@ -67,7 +67,7 @@ export type Shift = {
   durationInMinutes: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   location: Location;
-  shiftRequests: ShiftRequest[];
+  shiftRequests: Array<ShiftRequest>;
   startDate: Scalars['String']['output'];
   startTime: Scalars['String']['output'];
   worker?: Maybe<Worker>;
@@ -87,18 +87,18 @@ export type Worker = {
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  shiftRequests: ShiftRequest[];
+  shiftRequests: Array<ShiftRequest>;
 };
 
 export type GetWorkersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetWorkersQuery = { __typename?: 'Query', workers: { __typename?: 'Worker', email: string, id: string, name: string, shiftRequests: { __typename?: 'ShiftRequest', accepted: boolean, createdAt: string, shift: { __typename?: 'Shift', id: string } }[] }[] };
+export type GetWorkersQuery = { __typename?: 'Query', workers: Array<{ __typename?: 'Worker', email: string, id: string, name: string, shiftRequests: Array<{ __typename?: 'ShiftRequest', accepted: boolean, createdAt: string, shift: { __typename?: 'Shift', id: string } }> }> };
 
 export type GetShiftsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetShiftsQuery = { __typename?: 'Query', shifts: { __typename?: 'Shift', id: string, startDate: string, startTime: string, durationInMinutes: number, location: { __typename?: 'Location', id: string, name: string }, shiftRequests: { __typename?: 'ShiftRequest', id: string, createdAt: string, accepted: boolean, worker: { __typename?: 'Worker', id: string, email: string } }[] }[] };
+export type GetShiftsQuery = { __typename?: 'Query', shifts: Array<{ __typename?: 'Shift', id: string, startDate: string, startTime: string, durationInMinutes: number, location: { __typename?: 'Location', id: string, name: string, gpsCoordinates: { __typename?: 'Coordinates', latitude: number, longitude: number } }, shiftRequests: Array<{ __typename?: 'ShiftRequest', id: string, createdAt: string, accepted: boolean, worker: { __typename?: 'Worker', id: string, email: string } }> }> };
 
 
 export const GetWorkersDocument = gql`
@@ -118,20 +118,20 @@ export const GetWorkersDocument = gql`
 }
     `;
 export function useGetWorkersQuery(baseOptions?: Apollo.QueryHookOptions<GetWorkersQuery, GetWorkersQueryVariables>) {
-    const options = {...defaultOptions, ...baseOptions}
-    return Apollo.useQuery<GetWorkersQuery, GetWorkersQueryVariables>(GetWorkersDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetWorkersQuery, GetWorkersQueryVariables>(GetWorkersDocument, options);
+      }
 export function useGetWorkersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWorkersQuery, GetWorkersQueryVariables>) {
-    const options = {...defaultOptions, ...baseOptions}
-    return Apollo.useLazyQuery<GetWorkersQuery, GetWorkersQueryVariables>(GetWorkersDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetWorkersQuery, GetWorkersQueryVariables>(GetWorkersDocument, options);
+        }
 // @ts-ignore
 export function useGetWorkersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWorkersQuery, GetWorkersQueryVariables>): Apollo.UseSuspenseQueryResult<GetWorkersQuery, GetWorkersQueryVariables>;
 export function useGetWorkersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWorkersQuery, GetWorkersQueryVariables>): Apollo.UseSuspenseQueryResult<GetWorkersQuery | undefined, GetWorkersQueryVariables>;
 export function useGetWorkersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWorkersQuery, GetWorkersQueryVariables>) {
-    const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-    return Apollo.useSuspenseQuery<GetWorkersQuery, GetWorkersQueryVariables>(GetWorkersDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetWorkersQuery, GetWorkersQueryVariables>(GetWorkersDocument, options);
+        }
 export type GetWorkersQueryHookResult = ReturnType<typeof useGetWorkersQuery>;
 export type GetWorkersLazyQueryHookResult = ReturnType<typeof useGetWorkersLazyQuery>;
 export type GetWorkersSuspenseQueryHookResult = ReturnType<typeof useGetWorkersSuspenseQuery>;
@@ -146,6 +146,10 @@ export const GetShiftsDocument = gql`
     location {
       id
       name
+      gpsCoordinates {
+        latitude
+        longitude
+      }
     }
     shiftRequests {
       id
@@ -160,20 +164,20 @@ export const GetShiftsDocument = gql`
 }
     `;
 export function useGetShiftsQuery(baseOptions?: Apollo.QueryHookOptions<GetShiftsQuery, GetShiftsQueryVariables>) {
-    const options = {...defaultOptions, ...baseOptions}
-    return Apollo.useQuery<GetShiftsQuery, GetShiftsQueryVariables>(GetShiftsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetShiftsQuery, GetShiftsQueryVariables>(GetShiftsDocument, options);
+      }
 export function useGetShiftsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetShiftsQuery, GetShiftsQueryVariables>) {
-    const options = {...defaultOptions, ...baseOptions}
-    return Apollo.useLazyQuery<GetShiftsQuery, GetShiftsQueryVariables>(GetShiftsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetShiftsQuery, GetShiftsQueryVariables>(GetShiftsDocument, options);
+        }
 // @ts-ignore
 export function useGetShiftsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetShiftsQuery, GetShiftsQueryVariables>): Apollo.UseSuspenseQueryResult<GetShiftsQuery, GetShiftsQueryVariables>;
 export function useGetShiftsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetShiftsQuery, GetShiftsQueryVariables>): Apollo.UseSuspenseQueryResult<GetShiftsQuery | undefined, GetShiftsQueryVariables>;
 export function useGetShiftsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetShiftsQuery, GetShiftsQueryVariables>) {
-    const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-    return Apollo.useSuspenseQuery<GetShiftsQuery, GetShiftsQueryVariables>(GetShiftsDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetShiftsQuery, GetShiftsQueryVariables>(GetShiftsDocument, options);
+        }
 export type GetShiftsQueryHookResult = ReturnType<typeof useGetShiftsQuery>;
 export type GetShiftsLazyQueryHookResult = ReturnType<typeof useGetShiftsLazyQuery>;
 export type GetShiftsSuspenseQueryHookResult = ReturnType<typeof useGetShiftsSuspenseQuery>;
