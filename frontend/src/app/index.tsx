@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Alert, Button, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -7,6 +7,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useAppContext } from '@/context/app-context';
 import { useTheme } from '@/hooks/use-theme';
+import { ShiftDisplayData } from '@/constants/shifts';
 
 export default function ShiftList() {
     const safeAreaInsets = useSafeAreaInsets();
@@ -17,8 +18,11 @@ export default function ShiftList() {
     const theme = useTheme();
     const {
         shifts,
+        shiftsLoading,
+        shiftsError,
         currentUser,
         currentUserId,
+        loadShifts,
         claimShift,
         unclaimShift,
         getShiftOwner,
@@ -36,6 +40,21 @@ export default function ShiftList() {
             paddingBottom: Spacing.four,
         },
     });
+    
+    useEffect(() => {
+        loadShifts();
+    }, []);
+
+    const [shiftDurationStrings, setShiftDurationStrings] = React.useState<Record<string, string>>({});
+    useEffect(() => {
+        const newShiftDurationStrings: Record<string, string> = {};
+        shifts.forEach((shift) => {
+            const endTime = new Date(`${shift.startDate}T${shift.startTime}`);
+            endTime.setMinutes(endTime.getMinutes() + shift.durationInMinutes);
+            newShiftDurationStrings[shift.id] = `${shift.startDate} ${shift.startTime} to ${endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        });
+        setShiftDurationStrings(newShiftDurationStrings);
+    }, [shifts]);
 
     return (
         <ScrollView
@@ -62,7 +81,7 @@ export default function ShiftList() {
                                     ]}>
                                     <View>
                                         <ThemedText style={styles.workerName}>{shift.location.name}</ThemedText>
-                                        <ThemedText>{shift.from} to {shift.to}</ThemedText>
+                                        <ThemedText>{shiftDurationStrings[shift.id]}</ThemedText>
                                         <ThemedText style={styles.claimedByText}>
                                             {owner ? `Claimed by ${owner.name}` : 'Unclaimed'}
                                         </ThemedText>

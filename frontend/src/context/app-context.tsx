@@ -4,7 +4,8 @@ import { Worker, workers as fallbackWorkers } from '@/constants/workers';
 import { Shift } from '@/constants/shifts';
 import { client } from '@/utils/apolloGraphQL';
 import { GET_SHIFTS, GET_WORKERS } from '@/utils/queries';
-import { GetWorkersQuery, GetShiftsQuery } from '@/generated/graphql';
+import { GetWorkersQuery, GetShiftsQuery, RequestShiftMutation, RemoveShiftRequestMutation } from '@/generated/graphql';
+import { REMOVE_SHIFT_REQUEST, REQUEST_SHIFT } from '@/utils/mutations';
 
 type WorkerId = Worker['id'];
 
@@ -21,10 +22,10 @@ type AppContextValue = {
     loadWorkers: () => Promise<void>;
     loadShifts: () => Promise<void>;
     setCurrentUserId: (workerId: WorkerId | null) => void;
-    claimShift: (shiftId: string) => void;
-    unclaimShift: (shiftId: string) => void;
+    claimShift: (shiftId: string) => Promise<void>;
+    unclaimShift: (shiftId: string) => Promise<void>;
     getShiftOwner: (shiftId: string) => Worker | null;
-    refreshWorkers: () => Promise<void>;
+    refreshData: () => Promise<void>;
 };
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -151,54 +152,50 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ? workers.find((worker) => worker.id === currentUserId) ?? null
         : null;
 
-    const claimShift = (shiftId: string) => {
+    const claimShift = async (shiftId: string) => {
         if (!currentUserId) {
             return;
         }
 
-        setClaimedShifts((previous) => ({
-            ...previous,
-            [shiftId]: currentUserId,
-        }));
+        const { data } = await client.mutate<RequestShiftMutation>({
+            mutation: REQUEST_SHIFT,
+            variables: { workerId: currentUserId, shiftId },
+            fetchPolicy: 'network-only',
+        });
+
+        await refreshData();
     };
 
-    const unclaimShift = (shiftId: string) => {
-        setClaimedShifts((previous) => ({
-            ...previous,
-            [shiftId]: null,
-        }));
+    const unclaimShift = async (shiftId: string) => {
+        if (!currentUserId) {
+            return;
+        }
+
+        const { data } = await client.mutate<RemoveShiftRequestMutation>({
+            mutation: REMOVE_SHIFT_REQUEST,
+            variables: { workerId: currentUserId, shiftId },
+            fetchPolicy: 'network-only',
+        });
+        
+        await refreshData();
     };
 
     const getShiftOwner = (shiftId: string) => {
-        const ownerId = claimedShifts[shiftId];
-        return ownerId ? workers.find((worker) => worker.id === ownerId) ?? null : null;
+        const shift = shifts.find((s) => s.id === shiftId);
+        if (!shift) {
+            return null;
+        }
+
+        if (!shift.shiftRequests || shift.shiftRequests.length === 0) {
+            return null;
+        } else {
+            const workerId = shift.shiftRequests[0].worker.id;
+            return workers.find((worker) => worker.id === workerId) || null;
+        }
     };
 
-    const refreshWorkers = async () => {
-        setWorkersLoading(true);
-        setWorkersError(null);
-
-        try {
-            const { data } = await client.query<GetWorkersQuery>({
-                query: GET_WORKERS,
-                fetchPolicy: 'network-only',
-            });
-            let workersData: Worker[] = [];
-            if (data && data.workers) {
-                workersData = data.workers.map((worker: any) => ({
-                    id: worker.id,
-                    name: worker.name,
-                    email: worker.email,
-                }));
-            }
-
-            setWorkers(workersData);
-        } catch (error) {
-            setWorkersError(error instanceof Error ? error.message : 'Failed to load workers.');
-            throw error;
-        } finally {
-            setWorkersLoading(false);
-        }
+    const refreshData = async () => {
+        await Promise.allSettled([loadShifts(), loadWorkers()]);
     };
 
     const value = {
@@ -217,7 +214,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         claimShift,
         unclaimShift,
         getShiftOwner,
-        refreshWorkers,
+        refreshData,
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -90,6 +90,22 @@ export type Worker = {
   shiftRequests: Array<ShiftRequest>;
 };
 
+export type RequestShiftMutationVariables = Exact<{
+  workerId: Scalars['ID']['input'];
+  shiftId: Scalars['ID']['input'];
+}>;
+
+
+export type RequestShiftMutation = { __typename?: 'Mutation', requestShift: { __typename?: 'ShiftRequest', id: string, createdAt: string } };
+
+export type RemoveShiftRequestMutationVariables = Exact<{
+  workerId: Scalars['ID']['input'];
+  shiftId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveShiftRequestMutation = { __typename?: 'Mutation', removeShiftRequest: { __typename?: 'ShiftRequest', id: string, createdAt: string } };
+
 export type GetWorkersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -101,6 +117,38 @@ export type GetShiftsQueryVariables = Exact<{ [key: string]: never; }>;
 export type GetShiftsQuery = { __typename?: 'Query', shifts: Array<{ __typename?: 'Shift', id: string, startDate: string, startTime: string, durationInMinutes: number, location: { __typename?: 'Location', id: string, name: string, gpsCoordinates: { __typename?: 'Coordinates', latitude: number, longitude: number } }, shiftRequests: Array<{ __typename?: 'ShiftRequest', id: string, createdAt: string, accepted: boolean, worker: { __typename?: 'Worker', id: string, email: string } }> }> };
 
 
+export const RequestShiftDocument = gql`
+    mutation RequestShift($workerId: ID!, $shiftId: ID!) {
+  requestShift(workerId: $workerId, shiftId: $shiftId) {
+    id
+    createdAt
+  }
+}
+    `;
+export type RequestShiftMutationFn = Apollo.MutationFunction<RequestShiftMutation, RequestShiftMutationVariables>;
+export function useRequestShiftMutation(baseOptions?: Apollo.MutationHookOptions<RequestShiftMutation, RequestShiftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RequestShiftMutation, RequestShiftMutationVariables>(RequestShiftDocument, options);
+      }
+export type RequestShiftMutationHookResult = ReturnType<typeof useRequestShiftMutation>;
+export type RequestShiftMutationResult = Apollo.MutationResult<RequestShiftMutation>;
+export type RequestShiftMutationOptions = Apollo.BaseMutationOptions<RequestShiftMutation, RequestShiftMutationVariables>;
+export const RemoveShiftRequestDocument = gql`
+    mutation RemoveShiftRequest($workerId: ID!, $shiftId: ID!) {
+  removeShiftRequest(workerId: $workerId, shiftId: $shiftId) {
+    id
+    createdAt
+  }
+}
+    `;
+export type RemoveShiftRequestMutationFn = Apollo.MutationFunction<RemoveShiftRequestMutation, RemoveShiftRequestMutationVariables>;
+export function useRemoveShiftRequestMutation(baseOptions?: Apollo.MutationHookOptions<RemoveShiftRequestMutation, RemoveShiftRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveShiftRequestMutation, RemoveShiftRequestMutationVariables>(RemoveShiftRequestDocument, options);
+      }
+export type RemoveShiftRequestMutationHookResult = ReturnType<typeof useRemoveShiftRequestMutation>;
+export type RemoveShiftRequestMutationResult = Apollo.MutationResult<RemoveShiftRequestMutation>;
+export type RemoveShiftRequestMutationOptions = Apollo.BaseMutationOptions<RemoveShiftRequestMutation, RemoveShiftRequestMutationVariables>;
 export const GetWorkersDocument = gql`
     query GetWorkers {
   workers {

@@ -119,6 +119,15 @@ export const removeShiftRequest = async (workerIdentifier: string, shiftIdentifi
         SELECT id as internal_id, identifier, created_at, user_id, shift_id, accepted FROM public.shift_request
         WHERE user_id = ${worker.id} AND shift_id = ${shift.id}
     `;
+
+    if (!shiftRequest) {
+        throw new Error(`Shift request for worker ${workerIdentifier} and shift ${shiftIdentifier} not found`);
+    }
+
+    await sql`
+        DELETE FROM public.shift_request
+        WHERE id = ${shiftRequest.internal_id}
+    `;
     
     return shiftRequest;
 }
